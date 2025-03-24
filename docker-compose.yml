@@ -1,0 +1,32 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/var/lib/tomcat9/webapps/data
+      - maven-repo:/root/.m2
+      - tomcat-logs:/usr/local/tomcat/logs
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0
+    networks:
+      - troubleshooting-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  maven-repo:
+    name: maven-repo
+  tomcat-logs:
+    name: tomcat-logs
+
+networks:
+  troubleshooting-network:
+    driver: bridge 
